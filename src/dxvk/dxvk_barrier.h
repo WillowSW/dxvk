@@ -19,7 +19,13 @@ namespace dxvk {
     
     DxvkBarrierSet(DxvkCmdBuffer cmdBuffer);
     ~DxvkBarrierSet();
-        
+
+    void accessMemory(
+            VkPipelineStageFlags      srcStages,
+            VkAccessFlags             srcAccess,
+            VkPipelineStageFlags      dstStages,
+            VkAccessFlags             dstAccess);
+
     void accessBuffer(
       const DxvkBufferSliceHandle&    bufSlice,
             VkPipelineStageFlags      srcStages,
@@ -84,6 +90,8 @@ namespace dxvk {
       const Rc<DxvkCommandList>&      commandList);
     
     void reset();
+
+    static DxvkAccessFlags getAccessTypes(VkAccessFlags flags);
     
   private:
 
@@ -111,8 +119,10 @@ namespace dxvk {
 
     std::vector<BufSlice> m_bufSlices;
     std::vector<ImgSlice> m_imgSlices;
-    
-    DxvkAccessFlags getAccessTypes(VkAccessFlags flags) const;
+
+    void insertBufferSlice(BufSlice slice);
+
+    void insertImageSlice(ImgSlice slice);
     
   };
   

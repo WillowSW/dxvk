@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utility>
+
 #include "vulkan_loader.h"
 
 namespace dxvk::vk {
@@ -132,6 +134,26 @@ namespace dxvk::vk {
       VkImageAspectFlags result = mask & -mask;
       mask &= ~result;
       return result;
+    }
+  }
+
+  template<typename T>
+  struct ChainStruct {
+    VkStructureType sType;
+    T*              pNext;
+  };
+
+  template<typename T>
+  void removeStructFromPNextChain(T** ppNext, VkStructureType sType) {
+    while (*ppNext) {
+      auto pStruct = reinterpret_cast<ChainStruct<T>*>(*ppNext);
+
+      if (pStruct->sType == sType) {
+        *ppNext = pStruct->pNext;
+        return;
+      }
+
+      ppNext = &pStruct->pNext;
     }
   }
 

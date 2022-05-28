@@ -48,7 +48,8 @@ namespace dxvk {
       return S_OK;
     }
     
-    if (riid == __uuidof(ID3D11VkExtContext)) {
+    if (riid == __uuidof(ID3D11VkExtContext)
+     || riid == __uuidof(ID3D11VkExtContext1)) {
       *ppvObject = ref(&m_contextExt);
       return S_OK;
     }
@@ -1288,6 +1289,9 @@ namespace dxvk {
           UINT            AlignedByteOffsetForArgs) {
     D3D10DeviceLock lock = LockContext();
     SetDrawBuffers(pBufferForArgs, nullptr);
+
+    if (!ValidateDrawBufferSize(pBufferForArgs, AlignedByteOffsetForArgs, sizeof(VkDrawIndexedIndirectCommand)))
+      return;
     
     // If possible, batch up multiple indirect draw calls of
     // the same type into one single multiDrawIndirect call
@@ -1319,6 +1323,9 @@ namespace dxvk {
           UINT            AlignedByteOffsetForArgs) {
     D3D10DeviceLock lock = LockContext();
     SetDrawBuffers(pBufferForArgs, nullptr);
+
+    if (!ValidateDrawBufferSize(pBufferForArgs, AlignedByteOffsetForArgs, sizeof(VkDrawIndirectCommand)))
+      return;
 
     // If possible, batch up multiple indirect draw calls of
     // the same type into one single multiDrawIndirect call
@@ -1366,6 +1373,9 @@ namespace dxvk {
     D3D10DeviceLock lock = LockContext();
     SetDrawBuffers(pBufferForArgs, nullptr);
     
+    if (!ValidateDrawBufferSize(pBufferForArgs, AlignedByteOffsetForArgs, sizeof(VkDispatchIndirectCommand)))
+      return;
+
     EmitCs([cOffset = AlignedByteOffsetForArgs]
     (DxvkContext* ctx) {
       ctx->dispatchIndirect(cOffset);
